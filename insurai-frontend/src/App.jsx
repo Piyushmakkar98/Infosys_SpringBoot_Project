@@ -1,23 +1,51 @@
-// App.jsx
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { AuthProvider } from "./context/AuthContext";
+import Navbar from "./components/Navbar";
+import Home from "./pages/Home";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import Services from "./pages/Services";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import Profile from "./pages/Profile";
+import ProtectedRoute from "./components/ProtectedRoute";
+import "./App.css";
 
 function App() {
   return (
-    
-    <Router>
-      <nav className="p-4 bg-gray-100 shadow flex space-x-4">
-        <Link to="/signup" className="text-blue-600 hover:text-blue-800 font-medium">Signup</Link>
-        <Link to="/login" className="text-blue-600 hover:text-blue-800 font-medium">Login</Link>
-      </nav>
-
-      <Routes>
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/" element={<h2 className="text-2xl font-bold text-center mt-10">Welcome to <span className="text-blue-600">InsurAi 🚀</span></h2>} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </div>
+      </Router>
+    </AuthProvider>
   );
 }
 
