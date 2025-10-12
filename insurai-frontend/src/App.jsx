@@ -12,6 +12,8 @@ import Contact from "./pages/Contact";
 import Profile from "./pages/Profile";
 import ProtectedRoute from "./components/ProtectedRoute";
 import "./App.css";
+import ResetPassword from "./pages/ResetPassword";
+import ResetRequest from "./pages/ResetRequest";
 
 function App() {
   return (
@@ -26,6 +28,8 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/services" element={<Services />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/reset-request" element={<ResetRequest />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route
               path="/dashboard"
               element={

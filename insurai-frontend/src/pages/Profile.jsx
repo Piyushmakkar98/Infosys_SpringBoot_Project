@@ -1,28 +1,55 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 
 const Profile = () => {
   const { user, logout } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    name: user?.name || "",
-    email: user?.email || "",
-    phone: "+1 (555) 123-4567",
-    address: "123 Main St, City, State 12345",
-    dateOfBirth: "1990-01-01",
-    occupation: "Software Developer",
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    dateOfBirth: "",
+    occupation: "",
   });
 
+  // ------------------- Fetch profile -------------------
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await axios.get("http://localhost:8080/auth/profile", { withCredentials: true });
+        setFormData({
+          name: res.data.name || "",
+          email: res.data.email || "",
+          phone: res.data.phone || "",
+          address: res.data.address || "",
+          dateOfBirth: res.data.dateOfBirth || "",
+          occupation: res.data.occupation || "",
+        });
+      } catch (err) {
+        console.error("Failed to fetch profile:", err);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  // ------------------- Handle form -------------------
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSave = () => {
-    // Here you would typically save to backend
-    alert("Profile updated successfully!");
-    setIsEditing(false);
+  const handleSave = async () => {
+    try {
+      await axios.put("http://localhost:8080/auth/profile", formData, { withCredentials: true });
+      alert("Profile updated successfully!");
+      setIsEditing(false);
+    } catch (err) {
+      console.error("Failed to update profile:", err);
+      alert("Failed to update profile. Please try again.");
+    }
   };
-
   const profileStats = [
     { label: "Active Policies", value: "3", icon: "📄" },
     { label: "Total Claims", value: "12", icon: "📋" },
@@ -62,7 +89,7 @@ const Profile = () => {
                   </div>
                   <div>
                     <h2 className="text-3xl font-bold">
-                      {user?.name || "User"}
+                      {formData.name || "User"}
                     </h2>
                     <p className="text-blue-100">{user?.email}</p>
                     <p className="text-blue-200 text-sm">
@@ -92,21 +119,6 @@ const Profile = () => {
                         type="text"
                         name="name"
                         value={formData.name}
-                        onChange={handleChange}
-                        disabled={!isEditing}
-                        className={`w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-300 ${
-                          !isEditing ? "bg-gray-50" : "bg-white"
-                        }`}
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-700 block mb-2">
-                        Email Address
-                      </label>
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
                         onChange={handleChange}
                         disabled={!isEditing}
                         className={`w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-300 ${
@@ -165,21 +177,6 @@ const Profile = () => {
                     />
                   </div>
 
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 block mb-2">
-                      Occupation
-                    </label>
-                    <input
-                      type="text"
-                      name="occupation"
-                      value={formData.occupation}
-                      onChange={handleChange}
-                      disabled={!isEditing}
-                      className={`w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-300 ${
-                        !isEditing ? "bg-gray-50" : "bg-white"
-                      }`}
-                    />
-                  </div>
 
                   {isEditing && (
                     <div className="flex space-x-4">

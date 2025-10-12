@@ -40,7 +40,21 @@ function Login() {
       navigate("/dashboard");
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || "Login failed. Please try again.");
+      if (err.response) {
+        const status = err.response.status;
+        const msg = err.response.data?.message || "";
+
+        if (status === 403 && msg.includes("not verified")) {
+          alert("Your email is not verified. Please check your inbox.");
+        } else if (status === 401) {
+          alert("Invalid email or password.");
+        } else {
+          alert(msg || "Login failed. Please try again.");
+        }
+      } else {
+        // Network or unexpected error
+        alert("Something went wrong. Please try again later.");
+      }
     } finally {
       setLoading(false);
     }
@@ -100,6 +114,15 @@ function Login() {
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-300 bg-white/50"
               />
+            </div>
+
+            <div className="text-right mb-4">
+              <Link
+                to="/reset-request"
+                className="text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors duration-300"
+              >
+                Forgot Password?
+              </Link>
             </div>
 
             <button

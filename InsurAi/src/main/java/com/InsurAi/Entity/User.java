@@ -6,12 +6,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "users")
-@Data                   // ✅ generates getters, setters, toString, equals & hashCode
-@NoArgsConstructor      // ✅ generates no-args constructor
-@AllArgsConstructor     // ✅ generates all-args constructor
-@Builder                // ✅ generates builder pattern
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class User {
 
     @Id
@@ -28,10 +31,30 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    // ✅ Enum for roles
+    // ✅ Optional fields
+    @Column(nullable = true)
+    private String number; // phone number or contact number
+
+    @Column(nullable = true, length = 255)
+    private String address;
+
+    @Column(nullable = true)
+    private LocalDate dateOfBirth;
+
     public enum Role {
         USER,
         AGENT,
         ADMIN
     }
+    
+    // Email verification
+    @Column(name = "is_verified")
+    private boolean isVerified = false;
+
+    private String verificationToken; // store UUID token
+    
+    // reset password
+    private String resetPasswordToken;  // store UUID token
+    private LocalDateTime resetTokenExpiry; // token expiry time
+
 }

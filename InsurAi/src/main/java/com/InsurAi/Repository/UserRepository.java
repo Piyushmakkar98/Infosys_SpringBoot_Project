@@ -15,4 +15,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // check if user exists (useful in signup validation)
     boolean existsByEmail(String email);
+    Optional<User> findByVerificationToken(String token);
+    Optional<User> findByResetPasswordToken(String token);
 }
