@@ -9,14 +9,13 @@ function ResetRequest() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (cooldown > 0) return; // Prevent spam
+    if (cooldown > 0) return;
 
     setLoading(true);
     try {
       const res = await axios.post("http://localhost:8080/auth/forgot-password", { email });
       setMessage(res.data.message);
 
-      // Start cooldown (e.g., 30 seconds)
       setCooldown(30);
       const timer = setInterval(() => {
         setCooldown((prev) => {
@@ -39,7 +38,6 @@ function ResetRequest() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 px-4 py-8">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-xl p-8 sm:p-10">
-          {/* Logo/Icon */}
           <div className="flex justify-center mb-6">
             <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
               <svg 
@@ -58,7 +56,6 @@ function ResetRequest() {
             </div>
           </div>
 
-          {/* Header */}
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
               Forgot Password?
@@ -68,9 +65,7 @@ function ResetRequest() {
             </p>
           </div>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email Input */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address
@@ -78,7 +73,7 @@ function ResetRequest() {
               <input
                 id="email"
                 type="email"
-                placeholder="varshabethineedi@gmail.com"
+                placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -86,7 +81,6 @@ function ResetRequest() {
               />
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading || cooldown > 0}
@@ -108,7 +102,6 @@ function ResetRequest() {
             </button>
           </form>
 
-          {/* Message Display */}
           {message && (
             <div className={`mt-6 p-4 rounded-lg ${
               message.includes("wrong") || message.includes("error") 
@@ -119,7 +112,6 @@ function ResetRequest() {
             </div>
           )}
 
-          {/* Back to Sign In Link */}
           <div className="mt-6 text-center">
             <p className="text-gray-600 text-sm">
               Remember your password?{" "}
