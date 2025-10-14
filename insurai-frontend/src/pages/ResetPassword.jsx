@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
 
 function ResetPassword() {
@@ -9,7 +10,8 @@ function ResetPassword() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const token = "sample-token";
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token"); // Extract token from URL
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -72,9 +72,24 @@ public class AuthController {
                     .body(Map.of("message", "Please verify your email before logging in"));
         }
 
+        // 🔐 Generate JWT
         String token = jwtService.generateToken(user.getEmail(), user.getRole().name());
-        return ResponseEntity.ok(Map.of("token", token));
+
+        // 🍪 Build Secure, HttpOnly Cookie
+        ResponseCookie cookie = ResponseCookie.from("jwt", token)
+                .httpOnly(true)                 // can't be accessed by JS — protects from XSS
+                .secure(false)                  // set to true in prod (HTTPS only)
+                .path("/")                      // accessible to whole site
+                .maxAge(24 * 60 * 60)           // 1 day
+                .sameSite("Strict")             // prevents CSRF (can use 'Lax' if needed)
+                .build();
+
+        // ✅ Return success + cookie header
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(Map.of("message", "Login successful"));
     }
+
 
     
     // ------------------- Get Profile -------------------

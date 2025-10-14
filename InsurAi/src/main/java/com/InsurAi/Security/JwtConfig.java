@@ -20,7 +20,7 @@ public class JwtConfig {
         http
             .csrf(csrf -> csrf.disable()) // Disable CSRF for APIs
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/*").permitAll() // ✅ open endpoints
+                .requestMatchers("/auth/**").permitAll() // ✅ open endpoints
                 .anyRequest().authenticated() // everything else requires login
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
