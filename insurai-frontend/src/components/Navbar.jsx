@@ -4,6 +4,7 @@ import { useState } from "react";
 
 const Navbar = () => {
   const { user, logout, isAuthenticated } = useAuth();
+  const role = user?.role || "user";
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -12,6 +13,14 @@ const Navbar = () => {
     navigate("/");
     setIsMobileMenuOpen(false);
   };
+
+  const paths = {
+    USER: "/user/dashboard",
+    AGENT: "/agent/dashboard",
+    ADMIN: "/admin/dashboard"
+  };
+  
+  const dashboardPath = paths[role] || "/login";
 
   const NavLink = ({ to, children, onClick }) => (
     <Link
@@ -47,7 +56,7 @@ const Navbar = () => {
 
             {isAuthenticated() ? (
               <div className="flex items-center space-x-4">
-                <NavLink to="/dashboard">Dashboard</NavLink>
+                <NavLink to={dashboardPath}>Dashboard</NavLink>
                 <NavLink to="/profile">Profile</NavLink>
                 <div className="flex items-center space-x-3">
                   <span className="text-gray-700 font-medium">

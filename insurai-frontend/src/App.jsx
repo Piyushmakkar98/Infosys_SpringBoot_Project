@@ -31,7 +31,7 @@ function App() {
             <Route path="/reset-request" element={<ResetRequest />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route
-              path="/dashboard"
+              path="/user/dashboard"
               element={
                 <ProtectedRoute>
                   <Dashboard />

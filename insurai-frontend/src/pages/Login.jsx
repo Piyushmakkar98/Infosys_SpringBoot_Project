@@ -35,9 +35,17 @@ function Login() {
         email: formData.email,
         role: "USER",
       };
-
       login(res.data, userData);
-      navigate("/dashboard");
+      if (res.data.role === "USER") {
+        navigate("/user/dashboard");
+      } else if (res.data.role === "AGENT") {
+        navigate("/agent/dashboard");
+      } else if (res.data.role === "ADMIN") {
+        navigate("/admin/dashboard");
+      } else {
+        console.error("Unknown role:", res.data.role);
+        navigate("/login"); // fallback
+      }
     } catch (err) {
       console.error(err);
       if (err.response) {
