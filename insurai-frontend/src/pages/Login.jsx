@@ -33,7 +33,7 @@ function Login() {
       const userData = {
         name: formData.email.split("@")[0], // Temporary until backend provides user data
         email: formData.email,
-        role: "USER",
+        role: res.data.role,
       };
       login(res.data, userData);
       if (res.data.role === "USER") {

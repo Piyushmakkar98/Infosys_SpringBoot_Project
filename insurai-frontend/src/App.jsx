@@ -14,6 +14,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import "./App.css";
 import ResetPassword from "./pages/ResetPassword";
 import ResetRequest from "./pages/ResetRequest";
+import AgentDashboard from "./pages/AgentDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   return (
@@ -30,6 +32,8 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/reset-request" element={<ResetRequest />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/agent/dashboard" element={<AgentDashboard />} />
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route
               path="/user/dashboard"
               element={

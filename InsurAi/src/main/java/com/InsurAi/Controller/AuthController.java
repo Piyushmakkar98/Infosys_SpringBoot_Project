@@ -87,7 +87,7 @@ public class AuthController {
         // ✅ Return success + cookie header
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(Map.of("message", "Login successful"));
+                .body(Map.of("message", "Login successful","role",user.getRole()));
     }
 
 
