@@ -53,4 +53,10 @@ public class AgentService {
                 agent, LocalDate.now(), Appointment.AppointmentStatus.SCHEDULED
         );
     }
+    
+ // ✅ Get all unbooked availability slots for a specific agent and date
+    public List<Availability> getAvailabilityForAgentAndDate(Long agentId, LocalDate date) {
+        return availabilityRepository.findByAgentIdAndDateAndIsBookedFalse(agentId, date);
+    }
+
 }

@@ -55,6 +55,14 @@ public class PublicController {
         
         return agentService.getAvailableAgentsForDate(today);
     }
+    
+    @GetMapping("/public/agent/{agentId}/availability")
+    public List<Availability> getAgentAvailabilityForToday(@PathVariable Long agentId) {
+        LocalDate today = LocalDate.now();
+        return agentService.getAvailabilityForAgentAndDate(agentId, today);
+    }
+
+
 
     
 //    @GetMapping("/public/{userId}")

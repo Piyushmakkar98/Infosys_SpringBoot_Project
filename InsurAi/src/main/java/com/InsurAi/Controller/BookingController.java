@@ -24,6 +24,7 @@ public class BookingController {
     // ✅ User books an appointment
     @PostMapping("/book")
     public Appointment bookAppointment(
+    		@RequestParam String policyName,
     		@RequestParam String userEmail,
             @RequestParam Long agentId,
             @RequestParam String date,
@@ -32,10 +33,10 @@ public class BookingController {
     	User user = userRepository.findByEmail(userEmail)
     		.orElseThrow(() -> new RuntimeException("User not found"));
 
-        User agent = new User();
-        agent.setId(agentId);
+    	User agent = userRepository.findById(agentId)
+    	        .orElseThrow(() -> new RuntimeException("Agent not found with ID: " + agentId));
 
-        return appointmentService.bookAppointment(user, agent, LocalDate.parse(date), LocalTime.parse(time));
+        return appointmentService.bookAppointment(user, agent, LocalDate.parse(date), LocalTime.parse(time),policyName);
     }
 
     // ✅ Get all appointments for a user

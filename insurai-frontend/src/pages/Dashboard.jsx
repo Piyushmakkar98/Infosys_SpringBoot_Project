@@ -4,6 +4,7 @@ import axios from "axios";
 
 const Dashboard = () => {
   const { user } = useAuth();
+
   const [stats, setStats] = useState({
     totalPolicies: 0,
     activeBookings: 0,
@@ -14,51 +15,65 @@ const Dashboard = () => {
   const [agents, setAgents] = useState([]);
   const [selectedPolicy, setSelectedPolicy] = useState(null);
   const [selectedAgent, setSelectedAgent] = useState(null);
-  const [selectedDate, setSelectedDate] = useState("");
-  const [selectedTime, setSelectedTime] = useState("");
+  const [availableSlots, setAvailableSlots] = useState([]);
+  const [selectedSlot, setSelectedSlot] = useState(null);
   const [activeBookings, setActiveBookings] = useState([]);
-
 
   // Fetch policies
   const fetchPolicies = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/public/policies", { withCredentials: true });
+      const res = await axios.get("http://localhost:8080/public/policies", {
+        withCredentials: true,
+      });
       setPolicies(res.data);
-      setStats(prev => ({ ...prev, totalPolicies: res.data.length }));
+      setStats((prev) => ({ ...prev, totalPolicies: res.data.length }));
     } catch (err) {
       console.error("Error fetching policies:", err);
     }
   };
 
-  // Fetch agents
+  // Fetch today's available agents
   const fetchAgents = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/public/agent", { withCredentials: true });
-      console.log(res.data);
+      const res = await axios.get("http://localhost:8080/public/agent", {
+        withCredentials: true,
+      });
       setAgents(res.data);
     } catch (err) {
       console.error("Error fetching agents:", err);
     }
   };
 
-  // Fetch user stats / bookings
+  // Fetch selected agent's availability slots
+  const fetchAvailability = async (agentId) => {
+    try {
+      const res = await axios.get(
+        `http://localhost:8080/public/agent/${agentId}/availability`,
+        { withCredentials: true }
+      );
+      setAvailableSlots(res.data);
+    } catch (err) {
+      console.error("Error fetching availability:", err);
+    }
+  };
+
+  // Fetch user bookings/stats
   const fetchUserStats = async () => {
     try {
-      const res = await axios.get(`http://localhost:8080/public/${user.email}`, { withCredentials: true });
+      const res = await axios.get(
+        `http://localhost:8080/public/${user.email}`,
+        { withCredentials: true }
+      );
       console.log(res.data);
       setActiveBookings(res.data);
-      console.log(res.data);
-      setStats(prev => ({
+      setStats((prev) => ({
         ...prev,
         activeBookings: res.data.length,
-        //totalCoverage: res.data.reduce((sum, b) => sum + b.policy.coverage, 0),
       }));
     } catch (err) {
       console.error("Error fetching user bookings:", err);
     }
   };
-
-
 
   useEffect(() => {
     fetchPolicies();
@@ -66,23 +81,25 @@ const Dashboard = () => {
     if (user) fetchUserStats();
   }, [user]);
 
-  // Book appointment
+  // Book appointment (using slot data)
   const bookAppointment = async () => {
-    if (!selectedPolicy || !selectedAgent || !selectedDate || !selectedTime) {
-      alert("Please select policy, agent, date, and time!");
+    if (!selectedPolicy || !selectedAgent || !selectedSlot) {
+      alert("Please select a policy, agent, and slot!");
       return;
     }
+
+    const { date, startTime } = selectedSlot;
     try {
       await axios.post(
-        `http://localhost:8080/booking/book?userEmail=${user.email}&agentId=${selectedAgent.id}&date=${selectedDate}&time=${selectedTime}`,
+        `http://localhost:8080/booking/book?policyName=${selectedPolicy.name}&userEmail=${user.email}&agentId=${selectedAgent.id}&date=${date}&time=${startTime}`,
         {},
         { withCredentials: true }
       );
-      
+
       alert("Booking successful!");
-      fetchUserStats(); // update stats
+      fetchUserStats();
+      setSelectedSlot(null);
     } catch (err) {
-      
       console.error("Error booking appointment:", err);
       alert("Booking failed. Check console for details.");
     }
@@ -123,13 +140,15 @@ const Dashboard = () => {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Policies Section */}
           <div className="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6">
-            <h2 className="text-2xl font-bold mb-4">Purchase Policies</h2>
+            <h2 className="text-2xl font-bold mb-4">Discover Policies</h2>
             <div className="space-y-4">
               {policies.map((policy) => (
                 <div
                   key={policy.id}
                   className={`p-4 border rounded-xl cursor-pointer ${
-                    selectedPolicy?.id === policy.id ? "border-blue-500" : "border-gray-200"
+                    selectedPolicy?.id === policy.id
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-200"
                   }`}
                   onClick={() => setSelectedPolicy(policy)}
                 >
@@ -140,7 +159,9 @@ const Dashboard = () => {
                     </div>
                     <div className="text-right">
                       <p className="text-gray-900 font-medium">${policy.premium}</p>
-                      <p className="text-gray-600 text-sm">Coverage: ${policy.coverage}</p>
+                      <p className="text-gray-600 text-sm">
+                        Coverage: ${policy.coverage}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -154,9 +175,14 @@ const Dashboard = () => {
                 <select
                   className="border p-2 rounded"
                   value={selectedAgent?.id || ""}
-                  onChange={(e) =>
-                    setSelectedAgent(agents.find((a) => a.id === parseInt(e.target.value)))
-                  }
+                  onChange={(e) => {
+                    const agent = agents.find(
+                      (a) => a.id === parseInt(e.target.value)
+                    );
+                    setSelectedAgent(agent);
+                    setSelectedSlot(null);
+                    if (agent) fetchAvailability(agent.id);
+                  }}
                 >
                   <option value="">-- Select Agent --</option>
                   {agents.map((agent) => (
@@ -166,65 +192,82 @@ const Dashboard = () => {
                   ))}
                 </select>
 
-                {/* Date + Time */}
-                {selectedAgent && (
-                  <div className="mt-4 flex space-x-2">
-                    <input
-                      type="date"
-                      className="border p-2 rounded"
-                      value={selectedDate}
-                      onChange={(e) => setSelectedDate(e.target.value)}
-                    />
-                    <input
-                      type="time"
-                      className="border p-2 rounded"
-                      value={selectedTime}
-                      onChange={(e) => setSelectedTime(e.target.value)}
-                    />
-                    <button
-                      onClick={bookAppointment}
-                      className="bg-blue-500 text-white px-4 rounded hover:bg-blue-600"
-                    >
-                      Book
-                    </button>
+                {/* Available Slots */}
+                {selectedAgent && availableSlots.length > 0 && (
+                  <div className="mt-4">
+                    <h4 className="font-semibold mb-2">Available Slots</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                      {availableSlots.map((slot) => (
+                        <button
+                          key={slot.id}
+                          onClick={() => setSelectedSlot(slot)}
+                          className={`p-2 border rounded-lg text-sm transition ${
+                            selectedSlot?.id === slot.id
+                              ? "bg-blue-500 text-white border-blue-500"
+                              : "hover:bg-blue-50"
+                          }`}
+                        >
+                          {slot.date} <br />
+                          {slot.startTime} - {slot.endTime}
+                        </button>
+                      ))}
+                    </div>
+                    {selectedSlot && (
+                      <button
+                        onClick={bookAppointment}
+                        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                      >
+                        Book Appointment
+                      </button>
+                    )}
                   </div>
+                )}
+
+                {selectedAgent && availableSlots.length === 0 && (
+                  <p className="mt-4 text-gray-500 text-sm">
+                    No available slots for this agent today.
+                  </p>
                 )}
               </div>
             )}
           </div>
 
-{/* Sidebar */}
-<div className="space-y-6">
-  {/* Active Bookings */}
-  <div className="bg-white rounded-2xl shadow-lg p-6">
-    <h3 className="text-xl font-bold mb-4">Active Bookings</h3>
-    {activeBookings.length === 0 ? (
-      <p className="text-gray-600 text-sm">No active bookings</p>
-    ) : (
-      <div className="space-y-3">
-        {activeBookings.map((booking) => (
-          <div
-            key={booking.id}
-            className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow duration-200"
-          >
-            <div>
-              <p className="text-sm font-medium text-gray-900">
-                {booking.policy?.type || "Booking"} with {"Agent "+ booking.agent?.name || "Agent"}
-              </p>
-              <p className="text-xs text-gray-600">
-                {booking.date} • {booking.time}
-              </p>
-            </div>
-            <span className="inline-block px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
-              Upcoming
-            </span>
-          </div>
-        ))}
+          {/* Sidebar */}
+          <div className="space-y-6">
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <h3 className="text-xl font-bold mb-4">Booking Records</h3>
+              {activeBookings.length === 0 ? (
+                <p className="text-gray-600 text-sm">No active bookings</p>
+              ) : (
+                <div className="space-y-3">
+  {activeBookings
+    .filter((booking) => booking.status !== "COMPLETED") // ✅ only show not completed
+    .map((booking) => (
+      <div
+        key={booking.id}
+        className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow duration-200"
+      >
+        <div>
+          <p className="text-sm font-medium text-gray-900">
+            {booking.policy?.type || "Booking"} with{" "}
+            {booking.agent?.name
+              ? `Agent ${booking.agent.name}`
+              : "Agent"}
+          </p>
+          <p className="text-xs text-gray-600">
+            {booking.date} • {booking.time}
+          </p>
+        </div>
+        <span className="inline-block px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+          Upcoming
+        </span>
       </div>
-    )}
-  </div>
+    ))}
 </div>
 
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

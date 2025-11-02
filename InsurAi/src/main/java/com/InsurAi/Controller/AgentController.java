@@ -3,7 +3,10 @@ package com.InsurAi.Controller;
 import com.InsurAi.Entity.*;
 import com.InsurAi.Repository.UserRepository;
 import com.InsurAi.Service.AgentService;
+import com.InsurAi.Service.AppointmentService;
 import com.InsurAi.Security.JwtService; // your JWT util/service
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,12 +19,14 @@ public class AgentController {
 
     private final AgentService agentService;
     private final UserRepository userRepository;
-    private final JwtService jwtService; // helper to parse JWT
+    private final JwtService jwtService; // helper to parse 
+    private AppointmentService appointmentService;
 
-    public AgentController(AgentService agentService, UserRepository userRepository, JwtService jwtService) {
+    public AgentController(AgentService agentService, UserRepository userRepository, JwtService jwtService,AppointmentService appointmentService) {
         this.agentService = agentService;
         this.userRepository = userRepository;
         this.jwtService = jwtService;
+        this.appointmentService = appointmentService;
     }
 
     // Helper method to get logged-in agent from JWT in cookies
@@ -68,4 +73,12 @@ public class AgentController {
         User agent = getLoggedInAgent(request);
         return agentService.getUpcomingAppointments(agent);
     }
+    
+    @PutMapping("/{id}")
+    public ResponseEntity<UserPolicy> markAppointmentCompleted(@PathVariable Long id) {
+        UserPolicy policy = appointmentService.completeAppointmentAndCreatePolicy(id);
+        return ResponseEntity.ok(policy);
+    }
+
+
 }

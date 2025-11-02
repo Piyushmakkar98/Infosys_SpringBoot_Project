@@ -4,8 +4,6 @@ import com.InsurAi.Entity.Policy;
 import com.InsurAi.Service.PolicyService;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 @RequestMapping("/policies")
@@ -43,4 +41,6 @@ public class PolicyController {
     public void deletePolicy(@PathVariable Long id) {
         policyService.deletePolicy(id);
     }
+    
+    
 }

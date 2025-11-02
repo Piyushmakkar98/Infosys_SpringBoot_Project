@@ -1,9 +1,12 @@
 package com.InsurAi.Controller;
 
 import com.InsurAi.Entity.User;
+import com.InsurAi.Entity.UserPolicy;
 import com.InsurAi.Entity.Appointment;
+import com.InsurAi.Entity.Notification;
 import com.InsurAi.Repository.UserRepository;
-
+import com.InsurAi.Repository.NotificationRepository;
+import com.InsurAi.Service.UserPolicyService;
 import jakarta.transaction.Transactional;
 
 import com.InsurAi.Repository.AppointmentRepository;
@@ -16,16 +19,22 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class AdminController {
 
+    private final NotificationRepository notificationRepository;
+
+    private final UserPolicyService userPolicyService;
+
     private final UserRepository userRepository;
     private final AvailabilityRepository availabilityRepository;
     private final AppointmentRepository appointmentRepository;
 
     public AdminController(UserRepository userRepository,
                            AvailabilityRepository availabilityRepository,
-                           AppointmentRepository appointmentRepository) {
+                           AppointmentRepository appointmentRepository, UserPolicyService userPolicyService,NotificationRepository notificationRepository) {
         this.userRepository = userRepository;
         this.availabilityRepository = availabilityRepository;
         this.appointmentRepository = appointmentRepository;
+        this.userPolicyService = userPolicyService;
+        this.notificationRepository = notificationRepository; 
     }
 
     // ✅ Fetch all users
@@ -52,5 +61,15 @@ public class AdminController {
     @GetMapping("/users/bookings")
     public List<Appointment> getAllBookings() {
         return appointmentRepository.findAll();
+    }
+    
+    @GetMapping("/users/userpolicies")
+    public List<UserPolicy> getAllUserPolicies() {
+       return userPolicyService.getAllUserPolicies();
+    }
+    
+    @GetMapping("/users/notifications")
+    public List<Notification> getAllNotifications() {
+        return notificationRepository.findAll();
     }
 }

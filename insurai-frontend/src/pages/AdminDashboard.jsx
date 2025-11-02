@@ -2,6 +2,8 @@ import { useState } from "react";
 import UserList from "../components/UserList";
 import PolicyManager from "../components/PolicyManger";
 import BookingList from "../components/BookingList";
+import UserPolicyManager from "../components/UserPolicyManager";
+import Notifications from "../components/Notifications"; // <-- new import
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("users");
@@ -14,6 +16,10 @@ const AdminDashboard = () => {
         return <PolicyManager />;
       case "bookings":
         return <BookingList />;
+      case "userPolicies":
+        return <UserPolicyManager />;
+      case "notifications": // <-- new case
+        return <Notifications />;
       default:
         return null;
     }
@@ -35,6 +41,7 @@ const AdminDashboard = () => {
           >
             👤 Users
           </button>
+
           <button
             onClick={() => setActiveTab("policies")}
             className={`w-full text-left px-4 py-2 rounded-lg ${
@@ -45,6 +52,18 @@ const AdminDashboard = () => {
           >
             📄 Policies
           </button>
+
+          <button
+            onClick={() => setActiveTab("userPolicies")}
+            className={`w-full text-left px-4 py-2 rounded-lg ${
+              activeTab === "userPolicies"
+                ? "bg-blue-500 text-white"
+                : "hover:bg-gray-100"
+            }`}
+          >
+            🧾 User Policies
+          </button>
+
           <button
             onClick={() => setActiveTab("bookings")}
             className={`w-full text-left px-4 py-2 rounded-lg ${
@@ -54,6 +73,17 @@ const AdminDashboard = () => {
             }`}
           >
             📅 Bookings
+          </button>
+
+          <button
+            onClick={() => setActiveTab("notifications")}
+            className={`w-full text-left px-4 py-2 rounded-lg ${
+              activeTab === "notifications"
+                ? "bg-blue-500 text-white"
+                : "hover:bg-gray-100"
+            }`}
+          >
+            🔔 Notifications
           </button>
         </nav>
       </div>

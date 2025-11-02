@@ -43,5 +43,10 @@ public class Appointment {
         COMPLETED,
         CANCELLED
     }
+    
+    @Column(nullable = false)
+    private String policyName;	
+    
+    
 }
 
