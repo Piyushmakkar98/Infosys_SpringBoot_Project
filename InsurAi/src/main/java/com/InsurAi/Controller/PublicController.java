@@ -52,7 +52,6 @@ public class PublicController {
     @GetMapping("/public/agent")
     public List<User> getAvailableAgents() {
         LocalDate today = LocalDate.now(); // current date
-        
         return agentService.getAvailableAgentsForDate(today);
     }
     

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
+import AiVoiceAssistant from "../components/AiVoiceAssistant";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -121,12 +122,18 @@ const Dashboard = () => {
         {/* Stats Cards */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-            <p className="text-gray-600 text-sm font-medium">Available Policies</p>
-            <p className="text-3xl font-bold text-gray-900">{stats.totalPolicies}</p>
+            <p className="text-gray-600 text-sm font-medium">
+              Available Policies
+            </p>
+            <p className="text-3xl font-bold text-gray-900">
+              {stats.totalPolicies}
+            </p>
           </div>
           <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
             <p className="text-gray-600 text-sm font-medium">Active Bookings</p>
-            <p className="text-3xl font-bold text-gray-900">{stats.activeBookings}</p>
+            <p className="text-3xl font-bold text-gray-900">
+              {stats.activeBookings}
+            </p>
           </div>
           <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
             <p className="text-gray-600 text-sm font-medium">Total Coverage</p>
@@ -155,10 +162,14 @@ const Dashboard = () => {
                   <div className="flex justify-between items-center">
                     <div>
                       <h3 className="font-semibold">{policy.name}</h3>
-                      <p className="text-gray-600 text-sm">{policy.description}</p>
+                      <p className="text-gray-600 text-sm">
+                        {policy.description}
+                      </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-gray-900 font-medium">${policy.premium}</p>
+                      <p className="text-gray-900 font-medium">
+                        ${policy.premium}
+                      </p>
                       <p className="text-gray-600 text-sm">
                         Coverage: ${policy.coverage}
                       </p>
@@ -240,34 +251,39 @@ const Dashboard = () => {
                 <p className="text-gray-600 text-sm">No active bookings</p>
               ) : (
                 <div className="space-y-3">
-  {activeBookings
-    .filter((booking) => booking.status !== "COMPLETED") // ✅ only show not completed
-    .map((booking) => (
-      <div
-        key={booking.id}
-        className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow duration-200"
-      >
-        <div>
-          <p className="text-sm font-medium text-gray-900">
-            {booking.policy?.type || "Booking"} with{" "}
-            {booking.agent?.name
-              ? `Agent ${booking.agent.name}`
-              : "Agent"}
-          </p>
-          <p className="text-xs text-gray-600">
-            {booking.date} • {booking.time}
-          </p>
-        </div>
-        <span className="inline-block px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
-          Upcoming
-        </span>
-      </div>
-    ))}
-</div>
-
+                  {activeBookings
+                    .filter((booking) => booking.status !== "COMPLETED") // ✅ only show not completed
+                    .map((booking) => (
+                      <div
+                        key={booking.id}
+                        className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow duration-200"
+                      >
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">
+                            {booking.policy?.type || "Booking"} with{" "}
+                            {booking.agent?.name
+                              ? `Agent ${booking.agent.name}`
+                              : "Agent"}
+                          </p>
+                          <p className="text-xs text-gray-600">
+                            {booking.date} • {booking.time}
+                          </p>
+                        </div>
+                        <span className="inline-block px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+                          Upcoming
+                        </span>
+                      </div>
+                    ))}
+                </div>
               )}
             </div>
           </div>
+
+          {/* Floating AI Voice Assistant Button */}
+          <div className="fixed bottom-6 right-6 z-50">
+            <AiVoiceAssistant />
+          </div>
+
         </div>
       </div>
     </div>
