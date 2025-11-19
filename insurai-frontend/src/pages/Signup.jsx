@@ -25,16 +25,18 @@ function Signup() {
         "http://localhost:8080/auth/signup",
         formData
       );
-      alert("Account created successfully! Please check your email to verify your account.");
+      alert(
+        "Account created successfully! Please check your email to verify your account."
+      );
       navigate("/login");
     } catch (err) {
-      console.error('Signup error:', err);
-      console.error('Error response:', err.response);
-      
+      console.error("Signup error:", err);
+      console.error("Error response:", err.response);
+
       let errorMessage = "Signup failed. Please try again.";
-      
+
       if (err.response?.data) {
-        if (typeof err.response.data === 'string') {
+        if (typeof err.response.data === "string") {
           errorMessage = err.response.data;
         } else if (err.response.data.message) {
           errorMessage = err.response.data.message;
@@ -42,7 +44,7 @@ function Signup() {
       } else if (err.message) {
         errorMessage = err.message;
       }
-      
+
       alert(errorMessage);
     } finally {
       setLoading(false);
