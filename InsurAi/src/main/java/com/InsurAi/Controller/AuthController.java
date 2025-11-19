@@ -53,9 +53,17 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<String> signup(@RequestBody SignupRequest request) {
-        userService.registerUser(request);
-        return ResponseEntity.ok("User registered successfully!");
+    public ResponseEntity<?> signup(@RequestBody SignupRequest request) {
+        try {
+            userService.registerUser(request);
+            return ResponseEntity.ok(Map.of("message", "User registered successfully! Please check your email to verify your account."));
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode())
+                    .body(Map.of("message", e.getReason()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Registration failed: " + e.getMessage()));
+        }
     }
 
     @PostMapping("/login")

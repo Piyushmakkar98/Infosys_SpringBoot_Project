@@ -33,6 +33,11 @@ this.emailService = emailService;
 }
 
     public void registerUser(SignupRequest request) {
+        // Check if email already exists
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already registered");
+        }
+        
         String token = UUID.randomUUID().toString(); // generate token
 
         User user = User.builder()
@@ -46,13 +51,18 @@ this.emailService = emailService;
 
         userRepository.save(user);
 
-        // send verification email
-        emailService.sendSimpleEmail(
-            user.getEmail(),
-            "Verify your email",
-            "Click the link to verify your account: " +
-            "http://localhost:8080/auth/verify?token=" + token
-        );
+        // send verification email - don't fail registration if email fails
+        try {
+            emailService.sendSimpleEmail(
+                user.getEmail(),
+                "Verify your email",
+                "Click the link to verify your account: " +
+                "http://localhost:8080/auth/verify?token=" + token
+            );
+        } catch (Exception e) {
+            System.err.println("Failed to send verification email: " + e.getMessage());
+            // Continue anyway - user is registered
+        }
     }
 
 
