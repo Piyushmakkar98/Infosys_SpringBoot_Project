@@ -21,6 +21,7 @@ public interface AvailabilityRepository extends JpaRepository<Availability, Long
     List<Availability> findByAgentAndDateAndIsBookedFalse(User agent, LocalDate date);
     void deleteByAgentId(Long agentId);
     
+    
     List<Availability> findByAgentIdAndDateAndIsBookedFalse(Long agentId, LocalDate date);
     List<Availability> findByDate(LocalDate date);
 }

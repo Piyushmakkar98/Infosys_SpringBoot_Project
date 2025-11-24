@@ -10,6 +10,7 @@ import com.InsurAi.Service.EmailService;
 import com.InsurAi.Service.UserService;
 import com.InsurAi.Security.*;
 
+
 import jakarta.servlet.http.HttpServletRequest;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,6 +33,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -42,9 +44,7 @@ public class AuthController {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final EmailService emailService;
-
-    public AuthController(UserService userService, JwtService jwtService, UserRepository userRepository,
-            PasswordEncoder passwordEncoder, EmailService emailService) {
+    public AuthController(UserService userService, JwtService jwtService, UserRepository userRepository, PasswordEncoder passwordEncoder,EmailService emailService) {
         this.userService = userService;
         this.jwtService = jwtService;
         this.userRepository = userRepository;
@@ -53,18 +53,9 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody SignupRequest request) {
-        try {
-            userService.registerUser(request);
-            return ResponseEntity.ok(
-                    Map.of("message", "User registered successfully! Please check your email to verify your account."));
-        } catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getStatusCode())
-                    .body(Map.of("message", e.getReason()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "Registration failed: " + e.getMessage()));
-        }
+    public ResponseEntity<String> signup(@RequestBody SignupRequest request) {
+        userService.registerUser(request);
+        return ResponseEntity.ok("User registered successfully!");
     }
 
     @PostMapping("/login")
@@ -86,19 +77,21 @@ public class AuthController {
 
         // 🍪 Build Secure, HttpOnly Cookie
         ResponseCookie cookie = ResponseCookie.from("jwt", token)
-                .httpOnly(true) // can't be accessed by JS — protects from XSS
-                .secure(false) // set to true in prod (HTTPS only)
-                .path("/") // accessible to whole site
-                .maxAge(24 * 60 * 60) // 1 day
-                .sameSite("Strict") // prevents CSRF (can use 'Lax' if needed)
+                .httpOnly(true)                 // can't be accessed by JS — protects from XSS
+                .secure(false)                  // set to true in prod (HTTPS only)
+                .path("/")                      // accessible to whole site
+                .maxAge(24 * 60 * 60)           // 1 day
+                .sameSite("Strict")             // prevents CSRF (can use 'Lax' if needed)
                 .build();
 
         // ✅ Return success + cookie header
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(Map.of("message", "Login successful", "role", user.getRole()));
+                .body(Map.of("message", "Login successful","role",user.getRole()));
     }
 
+
+    
     // ------------------- Get Profile -------------------
     @GetMapping("/profile")
     public ResponseEntity<UserProfileResponse> getProfile(HttpServletRequest request) {
@@ -112,7 +105,7 @@ public class AuthController {
     // ------------------- Update Profile -------------------
     @PutMapping("/profile")
     public ResponseEntity<String> updateProfile(@RequestBody UserProfileRequest profileRequest,
-            HttpServletRequest request) {
+                                                HttpServletRequest request) {
         String token = extractToken(request);
         String email = jwtService.extractUsername(token);
 
@@ -131,7 +124,7 @@ public class AuthController {
         }
         throw new RuntimeException("JWT token not found in cookies");
     }
-
+    
     @GetMapping("/verify")
     public ResponseEntity<String> verifyEmail(@RequestParam String token) {
         User user = userRepository.findByVerificationToken(token)
@@ -149,8 +142,8 @@ public class AuthController {
     public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
         String email = request.get("email");
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.OK));
-        // ❌ Never reveal if email exists
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.OK)); 
+                // ❌ Never reveal if email exists
 
         // Generate token
         String token = UUID.randomUUID().toString();
@@ -160,14 +153,15 @@ public class AuthController {
 
         // Send email
         emailService.sendSimpleEmail(
-                user.getEmail(),
-                "Reset Your Password",
-                "Click this link to reset your password: " +
-                        "http://localhost:5173/reset-password?token=" + token);
+            user.getEmail(),
+            "Reset Your Password",
+            "Click this link to reset your password: " +
+            "http://localhost:5173/reset-password?token=" + token
+        );
 
         return ResponseEntity.ok(Map.of("message", "If this email exists, a reset link has been sent."));
     }
-
+    
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
         String token = request.get("token");
@@ -187,5 +181,6 @@ public class AuthController {
 
         return ResponseEntity.ok(Map.of("message", "Password reset successfully"));
     }
+
 
 }

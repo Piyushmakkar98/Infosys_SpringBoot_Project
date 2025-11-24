@@ -3,6 +3,8 @@ package com.InsurAi.Controller;
 import com.InsurAi.Entity.*;
 import com.InsurAi.Repository.UserRepository;
 import com.InsurAi.Service.AppointmentService;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -45,5 +47,11 @@ public class BookingController {
         User user = new User();
         user.setId(userId);
         return appointmentService.getUserAppointments(user);
+    }
+    
+    @PutMapping("/{id}")
+    public ResponseEntity<Appointment> cancel(@PathVariable Long id) {
+        Appointment cancelledAppointment = appointmentService.cancelAppointment(id);
+        return ResponseEntity.ok(cancelledAppointment);
     }
 }

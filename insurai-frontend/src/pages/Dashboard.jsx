@@ -20,6 +20,32 @@ const Dashboard = () => {
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [activeBookings, setActiveBookings] = useState([]);
 
+  const handleCancel = async (id) => {
+    try {
+      const res = await axios.put(
+        `http://localhost:8080/booking/${id}`,
+        {},
+        { withCredentials: true }
+      );
+      
+  
+      // if (!res.ok) throw new Error("Failed to cancel");
+
+      // refresh UI
+      setActiveBookings((prev) =>
+        prev.map((b) =>
+          b.id === id ? { ...b, status: "CANCELLED" } : b
+        )
+      );
+  
+      alert("Appointment cancelled");
+    } catch (err) {
+      console.error(err);
+      alert("Error cancelling appointment");
+    }
+  };
+  
+
   // Fetch policies
   const fetchPolicies = async () => {
     try {
@@ -251,29 +277,38 @@ const Dashboard = () => {
                 <p className="text-gray-600 text-sm">No active bookings</p>
               ) : (
                 <div className="space-y-3">
-                  {activeBookings
-                    .filter((booking) => booking.status !== "COMPLETED") // ✅ only show not completed
-                    .map((booking) => (
-                      <div
-                        key={booking.id}
-                        className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow duration-200"
-                      >
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">
-                            {booking.policy?.type || "Booking"} with{" "}
-                            {booking.agent?.name
-                              ? `Agent ${booking.agent.name}`
-                              : "Agent"}
-                          </p>
-                          <p className="text-xs text-gray-600">
-                            {booking.date} • {booking.time}
-                          </p>
-                        </div>
-                        <span className="inline-block px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
-                          Upcoming
-                        </span>
-                      </div>
-                    ))}
+{activeBookings
+  .filter((booking) => booking.status !== "COMPLETED" && booking.status !== "CANCELLED")
+  .map((booking) => (
+    <div
+      key={booking.id}
+      className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow duration-200"
+    >
+      <div>
+        <p className="text-sm font-medium text-gray-900">
+          {booking.policy?.type || "Booking"} with{" "}
+          {booking.agent?.name ? `Agent ${booking.agent.name}` : "Agent"}
+        </p>
+        <p className="text-xs text-gray-600">
+          {booking.date} • {booking.time}
+        </p>
+      </div>
+
+      <div className="flex items-center space-x-3">
+        <span className="inline-block px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+          Upcoming
+        </span>
+
+        <button
+          onClick={() => handleCancel(booking.id)}
+          className="px-3 py-1 text-xs font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  ))}
+
                 </div>
               )}
             </div>

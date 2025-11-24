@@ -30,6 +30,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
+    	
+        String path = request.getServletPath();
+        System.out.println("REQUEST PATH: " + path);
+        // 🚨 SKIP JWT FILTER ON THESE PATHS
+
+
 
         String jwt = null;
         String username = null;
